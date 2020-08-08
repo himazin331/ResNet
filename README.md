@@ -2,9 +2,12 @@
 ResNet50 with TF2.0
 詳細は[こちら]() *Not supported except in Japanese Language.
 
+---
 Optimizer: SGD+Momentum(0.9)
-Residual Block Architecture: Pre Activation
-Dataset: Fashion-MNIST
+
+Residual Block Architecture: Pre Activation 
+
+Dataset: Fashion-MNIST 
 
 ---
 **Command**  
