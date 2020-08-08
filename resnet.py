@@ -95,7 +95,7 @@ class ResNet(tf.keras.Model):
                     x = l(x)
             else:
                 x = layer(x)
-           
+        
         return x
 
 # 学習
@@ -104,9 +104,9 @@ class trainer(object):
         
         self.resnet = ResNet((28, 28, 1), 10)
         self.resnet.build(input_shape=(None, 28, 28, 1))
-        self.resnet.compile(optimizer=tf.keras.optimizers.SGD(),
-                           loss=tf.keras.losses.SparseCategoricalCrossentropy(),
-                           metrics=['accuracy'])
+        self.resnet.compile(optimizer=tf.keras.optimizers.SGD(momentum=0.9),
+                            loss=tf.keras.losses.SparseCategoricalCrossentropy(),
+                            metrics=['accuracy'])
 
     def train(self, train_img, train_lab, test_images, test_labels, out_path, batch_size, epochs):
         
@@ -117,7 +117,7 @@ class trainer(object):
         graph_output(his, out_path) # グラフ出力
 
         print("___Training finished\n\n")
-               
+
         self.resnet.evaluate(test_images, test_labels) # テストデータ推論
 
         print("\n___Saving parameter...")
