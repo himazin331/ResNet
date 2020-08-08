@@ -1,6 +1,6 @@
 # ResNet
 ResNet50 with TF2.0
-詳細は[こちら]() *Not supported except in Japanese Language.
+詳細は[こちら](https://qiita.com/hima_zin331/items/2adba781bc4afaae5880) *Not supported except in Japanese Language.
 
 ---
 Optimizer: SGD+Momentum(0.9)
