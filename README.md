@@ -1,3 +1,21 @@
 # ResNet
-ResNet50(Pre Activation) with TF2.0
+ResNet50 with TF2.0
+詳細は[こちら](https://qiita.com/hima_zin331/items/2adba781bc4afaae5880) *Not supported except in Japanese Language.
 
+---
+Optimizer: SGD+Momentum(0.9)
+
+Residual Block Architecture: Pre Activation 
+
+Dataset: Fashion-MNIST 
+
+---
+**Command**  
+```
+python resnet.py -e <EPOCH_NUM> -b <BATCH_SIZE>
+                                (-o <OUT_PATH>)
+                                
+EPOCH_NUM  : 40 (Default)  
+BATCH_SIZE : 256 (Default)
+OUT_PATH   : ./resnet.h5 (Default)  
+```
