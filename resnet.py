@@ -1,3 +1,6 @@
+import tensorflow as tf
+import tensorflow.keras.layers as kl
+
 import argparse as arg
 import os
 
@@ -6,8 +9,6 @@ import matplotlib.pyplot as plt
 
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 
-import tensorflow as tf
-import tensorflow.keras.layers as kl
 
 # 残差ブロック(Bottleneckアーキテクチャ)
 class Res_Block(tf.keras.Model):
@@ -18,43 +19,42 @@ class Res_Block(tf.keras.Model):
 
         self.bn1 = kl.BatchNormalization()
         self.av1 = kl.Activation(tf.nn.relu)
-        self.conv1 = kl.Conv2D(bneck_channels, kernel_size=1, 
-                        strides=1, padding='valid', use_bias=False)
+        self.conv1 = kl.Conv2D(bneck_channels, kernel_size=1,
+                                strides=1, padding='valid', use_bias=False)
         
         self.bn2 = kl.BatchNormalization()
         self.av2 = kl.Activation(tf.nn.relu)
-        self.conv2 = kl.Conv2D(bneck_channels, kernel_size=3, 
-                        strides=1, padding='same', use_bias=False)
+        self.conv2 = kl.Conv2D(bneck_channels, kernel_size=3,
+                                strides=1, padding='same', use_bias=False)
 
         self.bn3 = kl.BatchNormalization()
         self.av3 = kl.Activation(tf.nn.relu)
-        self.conv3 = kl.Conv2D(out_channels, kernel_size=1, 
-                        strides=1, padding='valid', use_bias=False)
+        self.conv3 = kl.Conv2D(out_channels, kernel_size=1,
+                                strides=1, padding='valid', use_bias=False)
         
         self.shortcut = self._scblock(in_channels, out_channels)
         self.add = kl.Add()
 
     # Shortcut Connection
     def _scblock(self, in_channels, out_channels):
-
         if in_channels != out_channels:
             self.bn_sc1 = kl.BatchNormalization()
-            self.conv_sc1 = kl.Conv2D(out_channels, kernel_size=1, 
-                        strides=1, padding='same', use_bias=False)
+            self.conv_sc1 = kl.Conv2D(out_channels, kernel_size=1,
+                                        strides=1, padding='same', use_bias=False)
             return self.conv_sc1
         else:
-            return lambda x : x
+            return lambda x: x
 
-    def call(self, x):   
-        
+    def call(self, x):
         out1 = self.conv1(self.av1(self.bn1(x)))
         out2 = self.conv2(self.av2(self.bn2(out1)))
         out3 = self.conv3(self.av3(self.bn3(out2)))
         shortcut = self.shortcut(x)
         out4 = self.add([out3, shortcut])
-        
+
         return out4
-        
+
+
 # ResNet50(Pre Activation)
 class ResNet(tf.keras.Model):
     def __init__(self, input_shape, output_dim):
@@ -89,19 +89,18 @@ class ResNet(tf.keras.Model):
 
     def call(self, x):
         for layer in self._layers:
-
             if isinstance(layer, list):
-                for l in layer:
-                    x = l(x)
+                for _layer in layer:
+                    x = _layer(x)
             else:
                 x = layer(x)
         
         return x
 
+
 # 学習
 class trainer(object):
     def __init__(self):
-        
         self.resnet = ResNet((28, 28, 1), 10)
         self.resnet.build(input_shape=(None, 28, 28, 1))
         self.resnet.compile(optimizer=tf.keras.optimizers.SGD(momentum=0.9),
@@ -109,32 +108,31 @@ class trainer(object):
                             metrics=['accuracy'])
 
     def train(self, train_img, train_lab, test_images, test_labels, out_path, batch_size, epochs):
-        
         print("\n\n___Start training...")
 
         his = self.resnet.fit(train_img, train_lab, batch_size=batch_size, epochs=epochs)
         
-        graph_output(his, out_path) # グラフ出力
+        graph_output(his, out_path)  # グラフ出力
 
         print("___Training finished\n\n")
 
-        self.resnet.evaluate(test_images, test_labels) # テストデータ推論
+        self.resnet.evaluate(test_images, test_labels)  # テストデータ推論
 
         print("\n___Saving parameter...")
         out_path = os.path.join(out_path, "resnet.h5")
-        self.resnet.save_weights(out_path) # パラメータ保存
+        self.resnet.save_weights(out_path)  # パラメータ保存
         print("___Successfully completed\n\n")
+
 
 # accuracy, lossグラフ
 def graph_output(history, out_path):
-    
     plt.plot(history.history['accuracy'])
     plt.title('Model accuracy')
     plt.ylabel('Accuracy')
     plt.xlabel('Epoch')
     plt.legend(['Train'], loc='upper left')
     plt.savefig(os.path.join(out_path, "acc_graph.jpg"))
-    plt.show()  
+    plt.show()
 
     plt.plot(history.history['loss'])
     plt.title('Model loss')
@@ -144,8 +142,8 @@ def graph_output(history, out_path):
     plt.savefig(os.path.join(out_path, "loss_graph.jpg"))
     plt.show()
 
+
 def main():
-    
     # コマンドラインオプション作成
     parser = arg.ArgumentParser(description='ResNet50')
     parser.add_argument('--out', '-o', type=str,
@@ -179,6 +177,7 @@ def main():
     
     Trainer = trainer()
     Trainer.train(train_imgs, train_labels, test_imgs, test_labels, args.out, args.batch_size, args.epoch)
+
 
 if __name__ == "__main__":
     main()
